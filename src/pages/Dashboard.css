@@ -1,0 +1,130 @@
+/* Estilo general tipo terminal */
+body {
+  background-color: #000000;
+  color: #00FF9F;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.terminal-box {
+  border: 1px solid #00FF9F;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 5px;
+}
+
+/* Tabla */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+th, td {
+  border: 1px solid #00FF9F;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 14px;
+}
+
+th {
+  background-color: #000000;
+  color: #00FF9F;
+}
+
+tr:nth-child(even) {
+  background-color: #111111;
+}
+
+.ping-button {
+  background-color: #000000;
+  color: #00FF9F;
+  border: 1px solid #00FF9F;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.ping-button:hover {
+  background-color: #00FF9F;
+  color: #000000;
+}
+
+input, select {
+  background-color: #000000;
+  border: 1px solid #00FF9F;
+  color: #00FF9F;
+  padding: 0.5rem;
+  font-family: 'Courier New', Courier, monospace;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.search-box {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border: 1px solid #00FF9F;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 50;
+}
+
+.modal-terminal {
+  background-color: #000;
+  color: #00FF9F;
+  border: 1px solid #00FF9F;
+  padding: 1rem;
+  width: 600px;
+  max-height: 80vh;
+  overflow-y: auto;
+  font-family: 'Courier New', Courier, monospace;
+  box-shadow: 0 0 15px #00FF9F;
+  border-radius: 5px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.modal-close {
+  background: transparent;
+  color: #00FF9F;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* Ajustes para filas y columnas */
+.dashboard-row span {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.dashboard-row {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #00FF9F;
+  display: flex;
+  align-items: center;
+}
+
+.dashboard-header {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #00FF9F;
+  display: flex;
+  font-weight: bold;
+}
