@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useRef } from "react";
-import TerminalModal from "./TerminalModal";
+import { useEffect, useState } from "react";
 import "./Dashboard.css";
+import FirebirdModal from "./FirebirdModal";
+import TerminalModal from "./TerminalModal";
 
 export default function Dashboard() {
   const [datos, setDatos] = useState([]);
@@ -8,13 +9,45 @@ export default function Dashboard() {
   const [filtro, setFiltro] = useState("");
   const [refrescandoCEF, setRefrescandoCEF] = useState(null);
   const [cefModal, setCefModal] = useState(null);
-  const refsCEFs = useRef({});
+  const [detalleFB, setDetalleFB] = useState(null);
+
+  const obtenerFirebird = async (cefItem) => {
+    const params = new URLSearchParams({
+      ip: cefItem.ip,
+      db: cefItem.rutadb,
+      user: cefItem.userdb,
+      pass: cefItem.passdb,
+      cef: cefItem.cef
+    });
+
+    try {
+      const res = await fetch(`http://192.168.56.1:5077/ping?${params}`);
+      const data = await res.json();
+      return {
+        ...cefItem,
+        firebird: data.ping,
+        fb_latencia_ms: data.latencia_ms,
+        fb_error: data.error
+      };
+    } catch (e) {
+      return {
+        ...cefItem,
+        firebird: "Error",
+        fb_latencia_ms: null,
+        fb_error: "No se pudo contactar el microservicio"
+      };
+    }
+  };
 
   const obtenerDatos = async () => {
     try {
-      const res = await fetch("https://diniz.com.mx/diniz/servicios/services/monitoreo_CEF/monitoreo_cef.php");
-      const data = await res.json();
-      setDatos(data);
+      const res = await fetch(
+        "https://diniz.com.mx/diniz/servicios/services/monitoreo_CEF/monitoreo_cef.php"
+      );
+      const dataBase = await res.json();
+
+      const datosConFirebird = await Promise.all(dataBase.map(obtenerFirebird));
+      setDatos(datosConFirebird);
       setUltimaActualizacion(new Date());
     } catch (err) {
       console.error("Error:", err);
@@ -35,25 +68,8 @@ export default function Dashboard() {
       weekday: "long",
       year: "numeric",
       month: "long",
-      day: "2-digit"
+      day: "2-digit",
     }) ?? "";
-
-  const reintentarPing = async (cefActual) => {
-    setRefrescandoCEF(cefActual.cef);
-    try {
-      const res = await fetch("https://diniz.com.mx/diniz/servicios/services/monitoreo_CEF/monitoreo_cef.php");
-      const todos = await res.json();
-      const actualizado = todos.find((c) => c.cef === cefActual.cef);
-      if (actualizado) {
-        setDatos((prev) =>
-          prev.map((c) => (c.cef === actualizado.cef ? actualizado : c))
-        );
-      }
-    } catch (e) {
-      console.error("Error al reintentar ping:", e);
-    }
-    setRefrescandoCEF(null);
-  };
 
   const datosFiltrados = filtro
     ? datos.filter((cef) =>
@@ -69,6 +85,12 @@ export default function Dashboard() {
         visible={!!cefModal}
         onClose={() => setCefModal(null)}
         cef={cefModal}
+      />
+
+      <FirebirdModal
+        visible={!!detalleFB}
+        onClose={() => setDetalleFB(null)}
+        detalle={detalleFB}
       />
 
       <div className="terminal-box">
@@ -103,6 +125,7 @@ export default function Dashboard() {
             <th>Estado</th>
             <th>Latencia</th>
             <th>Hora</th>
+            <th>Firebird</th>
             <th>Acción</th>
           </tr>
         </thead>
@@ -115,12 +138,21 @@ export default function Dashboard() {
               <td>{cef.ping === "OK" ? "✔️ En línea" : "❌ Error"}</td>
               <td>{cef.latencia_ms ? `${cef.latencia_ms} ms` : "--"}</td>
               <td>{cef.timestamp}</td>
-              <td>
+              <td title={cef.fb_error || ""}>
+                {cef.firebird === "OK" ? "✔️ OK" : "❌ Error"}
+              </td>
+              <td className="flex flex-col gap-1">
                 <button
                   className="ping-button"
                   onClick={() => setCefModal(cef)}
                 >
                   Ping
+                </button>
+                <button
+                  className="ping-button"
+                  onClick={() => setDetalleFB(cef)}
+                >
+                  Detalle FB
                 </button>
               </td>
             </tr>

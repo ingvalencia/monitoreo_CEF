@@ -17,8 +17,8 @@ if (!$conn) {
 }
 mssql_select_db($db, $conn);
 
-// Consulta a CEFLocales activos
-$query = "SELECT cef, ipdb FROM CEFLocales WHERE activo = 1";
+// Consulta a CEFLocales activos con datos necesarios para Firebird
+$query = "SELECT cef, ipdb, rutadb, userdb, passdb FROM CEFLocales WHERE activo = 1";
 $result = mssql_query($query, $conn);
 
 $respuesta = [];
@@ -27,12 +27,12 @@ while ($row = mssql_fetch_assoc($result)) {
   $cef = $row['cef'];
   $ip = $row['ipdb'];
 
-  // Medir latencia y hacer ping
+  // Medir latencia con ping
   $start = microtime(true);
   $ping = (stripos(PHP_OS, 'WIN') === 0)
     ? exec("ping -n 1 -w 500 $ip", $output, $status)
     : exec("ping -c 1 $ip", $output, $status);
-  $latencia = round((microtime(true) - $start) * 1000, 2); // Latencia simulada
+  $latencia = round((microtime(true) - $start) * 1000, 2);
 
   $pingOk = ($status === 0) ? "OK" : "FALLO";
   $mensaje = ($pingOk === "OK") ? "En línea" : "Sin respuesta";
@@ -43,7 +43,10 @@ while ($row = mssql_fetch_assoc($result)) {
     "ping" => $pingOk,
     "mensaje" => $mensaje,
     "timestamp" => date("Y-m-d H:i:s"),
-    "latencia_ms" => $pingOk === "OK" ? $latencia : null
+    "latencia_ms" => $pingOk === "OK" ? $latencia : null,
+    "rutadb" => $row["rutadb"],
+    "userdb" => $row["userdb"],
+    "passdb" => $row["passdb"]
   ];
 }
 
